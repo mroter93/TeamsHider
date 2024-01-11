@@ -8,6 +8,7 @@ A very simple tool to hide the overlays shown by teams during calls.
 
 The latest version can be found here: https://github.com/mroter93/TeamsHider/releases (Release.zip)
 
+
 ## Config
 
 Open settings.conf to configure TeamsHider
@@ -52,3 +53,12 @@ Head over to YouTube for a short video:
 ## Credits
 
 Thanks to flaticon for the icon (https://www.flaticon.com/free-icons/hidden)
+
+## Changelog
+
+**v.2**
+In conference with multiple people it is possible that the overlay name doesnt match the call window title exactly. Implemented a way to also work around this.
+
+**v.1**  
+Initial release
+
