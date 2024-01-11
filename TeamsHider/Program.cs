@@ -55,6 +55,13 @@ namespace TeamsHider
                         Application.Exit();
                     }
 
+                    toHide = toHide.SelectMany(x =>
+                                x.title.Split("|").FirstOrDefault()
+                                    .Split(", ", StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim())
+                                    .ToList(),
+                            (x, y) => (y, x.rect, x.hwnd))
+                        .ToList();
+                    
                     foreach (var list in toHide.GroupBy(x => x.title))
                     {
                         try
