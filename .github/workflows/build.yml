@@ -1,0 +1,42 @@
+name: Build .NET APP
+
+on:
+  push:
+    tags: 
+    - '*'
+  
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.x
+
+    - name: Build
+      run: dotnet publish --configuration Release -r win-x64 -o ./publish
+
+
+    - name: Install zip
+      uses: montudor/action-zip@v1
+
+    - name: Zip output
+      run: |
+         cd ./publish
+         zip -qq -r Release.zip .
+      
+
+    - name: GH Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "./publish/Release.zip"
+            
+
+                  
+            
