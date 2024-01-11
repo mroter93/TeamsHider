@@ -2,6 +2,8 @@
 
 A very simple tool to hide the overlays shown by teams during calls.
 
+![overlays](https://github.com/mroter93/TeamsHider/assets/156033398/31047bbd-0da0-4779-affd-c1aa927f4524)
+
 ## Config
 
 Open settings.conf to configure TeamsHider
