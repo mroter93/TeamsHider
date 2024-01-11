@@ -26,7 +26,7 @@ To hide the screen sharing bar the tool needs to know its window name. The germa
 ![image](https://github.com/mroter93/TeamsHider/assets/156033398/c48bfded-5293-4101-9deb-e02aca1d3738)
 
 Enter the title of the scren sharing bar into TopBarWindowName (it is enough to enter "Sharing control bar" instead of the full name).
-After setting the name change "GetWindows" back to false or otherwise the tool wont do anything.
+After setting the name change "GetWindows" back to false and restart TeamsHider or otherwise the tool wont do anything.
 
 ## Tray
 
