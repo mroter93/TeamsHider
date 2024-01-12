@@ -24,7 +24,7 @@ namespace TeamsHider
             {
                 while (true)
                 {
-                    var toHide = new List<(string title, WindowHelper.RECT rect, IntPtr hwnd)>();
+                    var toHide = new List<(string title, WindowHelper.DisplayAffinity affinity, IntPtr hwnd)>();
                     WindowHelper.EnumWindows(delegate(IntPtr wnd, IntPtr param)
                     {
                         try
@@ -34,8 +34,8 @@ namespace TeamsHider
                             var wdwText = WindowHelper.GetWindowText(wnd);
                             var containsTitle = wdwText.Contains("| Microsoft Teams");
                             if (!containsTitle) return true;
-                            WindowHelper.GetWindowRect(wnd, out var rect);
-                            toHide.Add((wdwText, rect, wnd));
+                            WindowHelper.GetWindowDisplayAffinity(wnd, out var affinity);
+                            toHide.Add((wdwText, affinity, wnd));
                         }
                         catch
                         {
@@ -46,20 +46,11 @@ namespace TeamsHider
 
                     }, IntPtr.Zero);
 
-                    if (Config.GetWindows)
-                    {
-                        var content = string.Join(Environment.NewLine, toHide.Select(x => x.title));
-                        await File.WriteAllTextAsync(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Windows.txt"),
-                            content);
-                        MessageBox.Show("Done");
-                        Application.Exit();
-                    }
-
                     toHide = toHide.SelectMany(x =>
                                 x.title.Split("|").FirstOrDefault()
                                     .Split(", ", StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim())
                                     .ToList(),
-                            (x, y) => (y, x.rect, x.hwnd))
+                            (x, y) => (y, x.affinity, x.hwnd))
                         .ToList();
                     
                     foreach (var list in toHide.GroupBy(x => x.title))
@@ -72,9 +63,7 @@ namespace TeamsHider
                                 {
                                     var firstItem = list.FirstOrDefault();
                                     if (Config.HideTopBar &&
-                                        (firstItem.title.Contains("Freigabesteuerungsleiste") ||
-                                        firstItem.title.Contains("Sharing control bar") ||
-                                        (!string.IsNullOrWhiteSpace(Config.TopBarWindowName) && firstItem.title.Contains(Config.TopBarWindowName))))
+                                        firstItem.affinity is WindowHelper.DisplayAffinity.Monitor or WindowHelper.DisplayAffinity.ExcludeFromCapture)
                                     {
                                         WindowHelper.ShowWindow((int)firstItem.hwnd, WindowHelper.SW_HIDE);
                                     }
@@ -85,8 +74,9 @@ namespace TeamsHider
                                 {
                                     if (Config.HideBottomOverlay)
                                     {
-                                        var smallestItem = list.OrderBy(x => x.rect.Surface)
-                                            .FirstOrDefault(x => !WindowHelper.IsIconic(x.hwnd));
+                                        var smallestItem = list.FirstOrDefault(x =>
+                                            x.affinity is WindowHelper.DisplayAffinity.Monitor
+                                                or WindowHelper.DisplayAffinity.ExcludeFromCapture);
                                         WindowHelper.ShowWindow((int)smallestItem.hwnd, WindowHelper.SW_HIDE);
                                     }
                                     break;

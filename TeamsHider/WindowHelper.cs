@@ -8,10 +8,7 @@ public static class WindowHelper
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool IsIconic(IntPtr hWnd);
-    
-    [DllImport("user32.dll", SetLastError=true)]
-    public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
-    
+
     [StructLayout(LayoutKind.Sequential)]
     public struct RECT
     {
@@ -24,8 +21,6 @@ public static class WindowHelper
         {
             return $"{Left}/{Top} - {Right}/{Bottom}";
         }
-
-        public double Surface => (Right - Left) * (Bottom - Top);
     }
     
     [StructLayout(LayoutKind.Sequential)]
@@ -124,15 +119,20 @@ public static class WindowHelper
         }
     }
 
-    [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
+    public enum DisplayAffinity : uint
+    {
+        None = 0x00,
+        Monitor = 0x01,
+        ExcludeFromCapture = 0x11
+    }
 
-    [DllImport("user32.dll", SetLastError = true)]
-    public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+    
+    [DllImport("user32.dll")]
+    public static extern bool GetWindowDisplayAffinity(IntPtr hwnd, out DisplayAffinity affinity);
 
     public const int SW_HIDE = 0;
     private const int SW_SHOW = 5;
+
 
     [DllImport("User32")]
     public static extern int ShowWindow(int hwnd, int nCmdShow);
