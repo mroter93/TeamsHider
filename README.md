@@ -13,21 +13,13 @@ The latest version can be found here: https://github.com/mroter93/TeamsHider/rel
 
 Open settings.conf to configure TeamsHider
 
-![image](https://github.com/mroter93/TeamsHider/assets/156033398/774fae73-cb97-4832-aee1-ab13e1956be5)
+![image](https://github.com/mroter93/TeamsHider/assets/156033398/ba7a2b8b-6468-4862-b14d-bffc02eb10e4)
 
 **HideTopBar**  
 Set to true to hide the bar which appears as soon as you share your screen.
 
 **HideBottomOverlay**  
 Hide the bottom right overlay which displays as soon as you minimize an active call window.
-
-**GetWindows & TopBarWindowName**  
-To hide the screen sharing bar the tool needs to know its window name. The german aswell english title is hardcoded however you can also add other languages easily. Set GetWindows to true and run the tool once while being in a call and sharing your screen. A file called windows.txt will be created:
-
-![image](https://github.com/mroter93/TeamsHider/assets/156033398/c48bfded-5293-4101-9deb-e02aca1d3738)
-
-Enter the title of the scren sharing bar into TopBarWindowName (only enter for example "Sharing control bar" and leave out " | Microsoft Teams").
-After setting the name change "GetWindows" back to false and restart TeamsHider or otherwise the tool wont do anything.
 
 ## Tray
 
@@ -48,13 +40,16 @@ https://dotnet.microsoft.com/en-us/download/dotnet/8.0 (.NET Desktop Runtime 8.0
 ## Video Showcase
 
 Head over to YouTube for a short video:  
-[https://www.youtube.com/watch?v=kBcTrQhyuo4](https://youtu.be/2CUZDFNQd0A)
+[[https://www.youtube.com/watch?v=kBcTrQhyuo4](https://youtu.be/2CUZDFNQd0A)](https://youtu.be/xbHCp9kb0vc)
 
 ## Credits
 
 Thanks to flaticon for the icon (https://www.flaticon.com/free-icons/hidden)
 
 ## Changelog
+
+**v.3**  
+Use GetWindowDisplayAffinity to make checking the window title and GetWindows obsolete aswell hiding the right window 100% reliable
 
 **v.2**  
 In conference with multiple people it is possible that the overlay name doesnt match the call window title exactly. Implemented a way to also work around this.
