@@ -40,7 +40,7 @@ https://dotnet.microsoft.com/en-us/download/dotnet/8.0 (.NET Desktop Runtime 8.0
 ## Video Showcase
 
 Head over to YouTube for a short video:  
-[[https://www.youtube.com/watch?v=kBcTrQhyuo4](https://youtu.be/2CUZDFNQd0A)](https://youtu.be/xbHCp9kb0vc)
+https://youtu.be/xbHCp9kb0vc
 
 ## Credits
 
