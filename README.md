@@ -49,6 +49,10 @@ Thanks to flaticon for the icon (https://www.flaticon.com/free-icons/hidden)
 ## Changelog
 
 **v.3**  
+Adjusted to internal changes in Teams to fix https://github.com/mroter93/TeamsHider/issues/3.
+Also from now on the release will be self-contained (https://github.com/mroter93/TeamsHider/issues/1)
+
+**v.3**  
 Use GetWindowDisplayAffinity to make checking the window title and GetWindows obsolete aswell hiding the right window 100% reliable
 
 **v.2**  
