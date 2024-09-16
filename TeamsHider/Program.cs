@@ -52,35 +52,29 @@ namespace TeamsHider
                                     .ToList(),
                             (x, y) => (y, x.affinity, x.hwnd))
                         .ToList();
+                    const string bottomOverlayText = "Meeting compact view";
                     
                     foreach (var list in toHide.GroupBy(x => x.title))
                     {
                         try
                         {
-                            switch (list.Count())
-                            {
-                                case 1:
-                                {
-                                    var firstItem = list.FirstOrDefault();
-                                    if (Config.HideTopBar &&
-                                        firstItem.affinity is WindowHelper.DisplayAffinity.Monitor or WindowHelper.DisplayAffinity.ExcludeFromCapture)
-                                    {
-                                        WindowHelper.ShowWindow((int)firstItem.hwnd, WindowHelper.SW_HIDE);
-                                    }
 
-                                    break;
-                                }
-                                case > 1:
-                                {
-                                    if (Config.HideBottomOverlay)
-                                    {
-                                        var smallestItem = list.FirstOrDefault(x =>
-                                            x.affinity is WindowHelper.DisplayAffinity.Monitor
-                                                or WindowHelper.DisplayAffinity.ExcludeFromCapture);
-                                        WindowHelper.ShowWindow((int)smallestItem.hwnd, WindowHelper.SW_HIDE);
-                                    }
-                                    break;
-                                }
+
+                            var firstItem = list.FirstOrDefault();
+                            if (firstItem.title is bottomOverlayText && Config.HideBottomOverlay)
+                            {
+                                var smallestItem = list.FirstOrDefault(x =>
+                                    x.affinity is WindowHelper.DisplayAffinity.Monitor
+                                        or WindowHelper.DisplayAffinity.ExcludeFromCapture);
+                                WindowHelper.ShowWindow((int)smallestItem.hwnd, WindowHelper.SW_HIDE);
+                                continue;
+                            }
+
+                            if (Config.HideTopBar && list.Count() > 1 &&
+                                firstItem.affinity is WindowHelper.DisplayAffinity.Monitor
+                                    or WindowHelper.DisplayAffinity.ExcludeFromCapture)
+                            {
+                                WindowHelper.ShowWindow((int)firstItem.hwnd, WindowHelper.SW_HIDE);
                             }
                         }
                         catch
