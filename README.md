@@ -48,7 +48,7 @@ Thanks to flaticon for the icon (https://www.flaticon.com/free-icons/hidden)
 
 ## Changelog
 
-**v.3**  
+**v.4**  
 Adjusted to internal changes in Teams to fix https://github.com/mroter93/TeamsHider/issues/3.
 Also from now on the release will be self-contained (https://github.com/mroter93/TeamsHider/issues/1)
 
