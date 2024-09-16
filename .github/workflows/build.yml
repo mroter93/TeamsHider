@@ -20,7 +20,7 @@ jobs:
         dotnet-version: 8.x
 
     - name: Build
-      run: dotnet publish --configuration Release -r win-x64 -o ./publish
+      run: dotnet publish --configuration Release --self-contained true -r win-x64 -o ./publish
 
 
     - name: Install zip
