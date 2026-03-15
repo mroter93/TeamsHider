@@ -1,12 +1,12 @@
 # TeamsHider
 
-A very simple tool to hide the overlays shown by teams during calls.
+A very simple tool to hide the overlays shown by teams during calls on Windows.
 
 ![overlays](https://github.com/mroter93/TeamsHider/assets/156033398/31047bbd-0da0-4779-affd-c1aa927f4524)
 
 ## Download
 
-The latest version can be found here: https://github.com/mroter93/TeamsHider/releases (Release.zip)
+The latest version can be found here: https://github.com/mroter93/TeamsHider/releases (zip under assets)
 
 
 ## Config
