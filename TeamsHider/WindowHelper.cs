@@ -34,23 +34,6 @@ public static class WindowHelper
 
     public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
-    public delegate void WinEventDelegate(
-        IntPtr hWinEventHook, uint eventType, IntPtr hwnd,
-        int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
-
-    public const uint EVENT_OBJECT_CREATE = 0x8000;
-    public const uint EVENT_OBJECT_SHOW = 0x8002;
-    public const uint EVENT_OBJECT_NAMECHANGE = 0x800C;
-    public const uint WINEVENT_OUTOFCONTEXT = 0x0000;
-
-    [DllImport("user32.dll")]
-    public static extern IntPtr SetWinEventHook(
-        uint eventMin, uint eventMax, IntPtr hmodWinEventProc,
-        WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
-
-    [DllImport("user32.dll")]
-    public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
-
     public static string GetWindowText(IntPtr hWnd)
     {
         int size = GetWindowTextLength(hWnd);
