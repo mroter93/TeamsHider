@@ -9,35 +9,30 @@ public class Config
 
     private static readonly string FilePath = Path.Combine(AppContext.BaseDirectory, "settings.json");
     private static Config _instance = Load();
-    private static FileSystemWatcher? _watcher;
+    private static DateTime _lastModified;
 
     public static Config Instance => _instance;
 
-    public static void Watch()
-    {
-        _watcher = new FileSystemWatcher(Path.GetDirectoryName(FilePath)!, Path.GetFileName(FilePath))
-        {
-            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.CreationTime,
-            EnableRaisingEvents = true
-        };
-        _watcher.Changed += (_, _) => Reload();
-    }
-
-    private static void Reload()
+    public static void ReloadIfChanged()
     {
         try
         {
+            if (!File.Exists(FilePath)) return;
+            var modified = File.GetLastWriteTimeUtc(FilePath);
+            if (modified == _lastModified) return;
+            _lastModified = modified;
             _instance = Load();
         }
         catch
         {
-            // keep current config if file is invalid
+            // keep current config if file is unreadable
         }
     }
 
     private static Config Load()
     {
         if (!File.Exists(FilePath)) return new Config();
+        _lastModified = File.GetLastWriteTimeUtc(FilePath);
         var json = File.ReadAllText(FilePath);
         return JsonSerializer.Deserialize<Config>(json) ?? new Config();
     }

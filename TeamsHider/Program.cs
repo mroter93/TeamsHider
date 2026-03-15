@@ -17,12 +17,12 @@ static class Program
             return;
         }
 
-        Config.Watch();
         using var tray = new TrayApplicationContext();
         Task.Run(async () =>
         {
             while (true)
             {
+                Config.ReloadIfChanged();
                 var toHide = new List<(string title, WindowHelper.DisplayAffinity affinity, IntPtr hwnd)>();
                 WindowHelper.EnumWindows(delegate(IntPtr wnd, IntPtr param)
                 {
