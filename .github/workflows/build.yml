@@ -21,9 +21,9 @@ jobs:
       run: dotnet publish --configuration Release --self-contained true -r win-x64 -o ./publish
 
     - name: Zip output
-      run: cd ./publish && zip -qq -r Release.zip .
+      run: cd ./publish && zip -qq -r TeamsHider-${{ github.ref_name }}.zip .
 
     - name: Create Release
       uses: ncipollo/release-action@v1.16.0
       with:
-        artifacts: "./publish/Release.zip"
+        artifacts: "./publish/TeamsHider-${{ github.ref_name }}.zip"
