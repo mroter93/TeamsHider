@@ -5,8 +5,18 @@ static class Program
     private static readonly string AppId = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
 
     private const string TeamsWindowClass = "TeamsWebView";
-    private const string TeamsWindowTitle = "| Microsoft Teams";
-    private const string BottomOverlayText = "Meeting compact view";
+
+    private static readonly (string Prefix, Func<Config, bool> Enabled)[] HidePatterns =
+    [
+        ("Meeting compact view | ", c => c.HideBottomOverlay),
+        ("Sharing control bar | ", c => c.HideTopBar),
+    ];
+
+    // prevent GC collection of the delegate
+    private static readonly WindowHelper.WinEventDelegate WinEventCallback = OnWinEvent;
+
+    private static IntPtr _hookShow;
+    private static IntPtr _hookNameChange;
 
     [STAThread]
     private static void Main(string[] args)
@@ -18,69 +28,68 @@ static class Program
         }
 
         using var tray = new TrayApplicationContext();
-        Task.Run(async () =>
+
+        // Initial scan for already-open Teams windows
+        WindowHelper.EnumWindows(delegate(IntPtr wnd, IntPtr param)
         {
-            while (true)
-            {
-                Config.ReloadIfChanged();
-                var toHide = new List<(string title, WindowHelper.DisplayAffinity affinity, IntPtr hwnd)>();
-                WindowHelper.EnumWindows(delegate(IntPtr wnd, IntPtr param)
-                {
-                    try
-                    {
-                        if (!WindowHelper.GetClassName(wnd).Contains(TeamsWindowClass))
-                            return true;
-                        var wdwText = WindowHelper.GetWindowText(wnd);
-                        if (!wdwText.Contains(TeamsWindowTitle))
-                            return true;
-                        WindowHelper.GetWindowDisplayAffinity(wnd, out var affinity);
-                        toHide.Add((wdwText, affinity, wnd));
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
+            TryHide(wnd);
+            return true;
+        }, IntPtr.Zero);
 
-                    return true;
-                }, IntPtr.Zero);
+        // Install event hooks on the UI thread
+        _hookShow = WindowHelper.SetWinEventHook(
+            WindowHelper.EVENT_OBJECT_SHOW, WindowHelper.EVENT_OBJECT_SHOW,
+            IntPtr.Zero, WinEventCallback, 0, 0, WindowHelper.WINEVENT_OUTOFCONTEXT);
 
-                toHide = toHide.SelectMany(x =>
-                            (x.title.Split("|").FirstOrDefault() ?? "")
-                                .Split(", ", StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim())
-                                .ToList(),
-                        (x, y) => (y, x.affinity, x.hwnd))
-                    .ToList();
+        _hookNameChange = WindowHelper.SetWinEventHook(
+            WindowHelper.EVENT_OBJECT_NAMECHANGE, WindowHelper.EVENT_OBJECT_NAMECHANGE,
+            IntPtr.Zero, WinEventCallback, 0, 0, WindowHelper.WINEVENT_OUTOFCONTEXT);
 
-                foreach (var list in toHide.GroupBy(x => x.title))
-                {
-                    try
-                    {
-                        var firstItem = list.FirstOrDefault();
-                        if (firstItem.title is BottomOverlayText && Config.Instance.HideBottomOverlay)
-                        {
-                            var smallestItem = list.FirstOrDefault(x =>
-                                x.affinity is WindowHelper.DisplayAffinity.Monitor
-                                    or WindowHelper.DisplayAffinity.ExcludeFromCapture);
-                            WindowHelper.ShowWindow(smallestItem.hwnd, WindowHelper.SW_HIDE);
-                            continue;
-                        }
+        // Periodic config reload
+        var configTimer = new System.Windows.Forms.Timer { Interval = 5000 };
+        configTimer.Tick += (_, _) => Config.ReloadIfChanged();
+        configTimer.Start();
 
-                        if (Config.Instance.HideTopBar && list.Count() > 1 &&
-                            firstItem.affinity is WindowHelper.DisplayAffinity.Monitor
-                                or WindowHelper.DisplayAffinity.ExcludeFromCapture)
-                        {
-                            WindowHelper.ShowWindow(firstItem.hwnd, WindowHelper.SW_HIDE);
-                        }
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-                }
+        Application.ApplicationExit += (_, _) =>
+        {
+            configTimer.Stop();
+            if (_hookShow != IntPtr.Zero) WindowHelper.UnhookWinEvent(_hookShow);
+            if (_hookNameChange != IntPtr.Zero) WindowHelper.UnhookWinEvent(_hookNameChange);
+        };
 
-                await Task.Delay(2000);
-            }
-        });
         Application.Run(tray);
+    }
+
+    private static void OnWinEvent(
+        IntPtr hWinEventHook, uint eventType, IntPtr hwnd,
+        int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+    {
+        if (idObject != WindowHelper.OBJID_WINDOW || idChild != 0)
+            return;
+
+        TryHide(hwnd);
+    }
+
+    private static void TryHide(IntPtr hwnd)
+    {
+        try
+        {
+            if (!WindowHelper.GetClassName(hwnd).Contains(TeamsWindowClass))
+                return;
+
+            var title = WindowHelper.GetWindowText(hwnd);
+            foreach (var pattern in HidePatterns)
+            {
+                if (title.StartsWith(pattern.Prefix) && pattern.Enabled(Config.Instance))
+                {
+                    WindowHelper.ShowWindow(hwnd, WindowHelper.SW_HIDE);
+                    return;
+                }
+            }
+        }
+        catch
+        {
+            // ignored — window may have been destroyed between event and processing
+        }
     }
 }
