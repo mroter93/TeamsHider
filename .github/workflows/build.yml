@@ -1,0 +1,29 @@
+name: Build .NET APP
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.x
+
+    - name: Publish
+      run: dotnet publish --configuration Release --self-contained true -r win-x64 -o ./publish
+
+    - name: Zip output
+      run: cd ./publish && zip -qq -r Release.zip .
+
+    - name: Create Release
+      uses: ncipollo/release-action@v1.16.0
+      with:
+        artifacts: "./publish/Release.zip"
