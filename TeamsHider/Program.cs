@@ -17,6 +17,7 @@ static class Program
             return;
         }
 
+        Config.Watch();
         using var tray = new TrayApplicationContext();
         Task.Run(async () =>
         {
